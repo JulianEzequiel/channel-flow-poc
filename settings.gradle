@@ -1,0 +1,2 @@
+rootProject.name='FlowChannel'
+include ':app'
