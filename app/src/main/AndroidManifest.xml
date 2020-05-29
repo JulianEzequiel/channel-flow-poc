@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".ui.MainActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -18,13 +18,17 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.FlowActivity" />
+        <activity android:name="com.poc.flowchannel.examples.ui.FlowActivity" />
 
-        <activity android:name=".ui.ChannelActivity" />
+        <activity android:name="com.poc.flowchannel.examples.ui.ChannelActivity" />
 
-        <activity android:name=".ui.ChannelReceiversActivity" />
+        <activity android:name="com.poc.flowchannel.examples.ui.ChannelReceiversActivity" />
 
-        <activity android:name=".ui.BroadcastChannelActivity" />
+        <activity android:name="com.poc.flowchannel.examples.ui.BroadcastChannelActivity" />
+
+        <activity android:name=".app.home.ui.HomeActivity" />
+
+        <activity android:name=".app.detail.ui.TweetDetailActivity" />
 
     </application>
 
