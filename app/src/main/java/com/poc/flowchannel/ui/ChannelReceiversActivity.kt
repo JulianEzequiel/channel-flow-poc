@@ -7,8 +7,13 @@ import androidx.lifecycle.Observer
 import com.poc.flowchannel.R
 import com.poc.flowchannel.viewmodel.ChannelReceiversViewModel
 import kotlinx.android.synthetic.main.activity_channels_receivers.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
-class ChannelReceiversActivity: AppCompatActivity() {
+
+@ExperimentalCoroutinesApi
+@FlowPreview
+class ChannelReceiversActivity : AppCompatActivity() {
 
     private val viewModel: ChannelReceiversViewModel by viewModels()
 

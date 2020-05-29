@@ -60,6 +60,17 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:layout_editor_absoluteY="155dp" />
 
+        <Button
+            android:id="@+id/goToBroadcastChannelButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:text="Broadcast Channels"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.927"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteY="155dp" />
 
     </LinearLayout>
 

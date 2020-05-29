@@ -3,14 +3,14 @@ package com.poc.flowchannel.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.channels.Channel.Factory.RENDEZVOUS
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 class ChannelReceiversViewModel : ViewModel() {
 
     private val rendezvousChannel = Channel<String>(RENDEZVOUS)
@@ -75,6 +75,5 @@ class ChannelReceiversViewModel : ViewModel() {
             }
         }
     }
-
 
 }

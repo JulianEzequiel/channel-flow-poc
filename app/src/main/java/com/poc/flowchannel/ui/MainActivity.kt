@@ -25,6 +25,9 @@ class MainActivity : AppCompatActivity() {
         goToChannelReceiversButton.setOnClickListener {
             startActivity(Intent(this, ChannelReceiversActivity::class.java))
         }
+        goToBroadcastChannelButton.setOnClickListener {
+            startActivity(Intent(this, BroadcastChannelActivity::class.java))
+        }
     }
 
 }
