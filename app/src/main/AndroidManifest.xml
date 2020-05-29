@@ -22,6 +22,8 @@
 
         <activity android:name=".ui.ChannelActivity" />
 
+        <activity android:name=".ui.ChannelReceiversActivity" />
+
     </application>
 
 </manifest>

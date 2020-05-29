@@ -21,6 +21,10 @@ class StreamsRepository(
     private var conflatedBroadcastChannel = ConflatedBroadcastChannel<String>()
     private val channelsMap = HashMap<Int, Channel<String>>()
 
+    init {
+        channelsMap[CONFLATED] = Channel(CONFLATED)
+    }
+
     // region Channels
     fun getConflatedBroadcastChannel() = conflatedBroadcastChannel.asFlow()
 
@@ -34,7 +38,6 @@ class StreamsRepository(
 
     fun initChannelEmissions() {
         conflatedBroadcastChannel = ConflatedBroadcastChannel()
-        channelsMap[CONFLATED] = Channel(CONFLATED)
         channelsMap[RENDEZVOUS] = Channel(RENDEZVOUS)
         channelsMap[UNLIMITED] = Channel(UNLIMITED)
         channelsMap[BUFFERED] = Channel(BUFFERED)

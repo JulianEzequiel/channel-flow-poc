@@ -2,9 +2,7 @@ package com.poc.flowchannel.ui
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import com.poc.flowchannel.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,6 +21,9 @@ class MainActivity : AppCompatActivity() {
         }
         goToChannelButton.setOnClickListener {
             startActivity(Intent(this, ChannelActivity::class.java))
+        }
+        goToChannelReceiversButton.setOnClickListener {
+            startActivity(Intent(this, ChannelReceiversActivity::class.java))
         }
     }
 
