@@ -1,12 +1,12 @@
 package com.poc.flowchannel.repository
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.channels.Channel.Factory.RENDEZVOUS
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.asFlow
 
 private const val FIXED_BUFFER_SIZE = 2
@@ -18,7 +18,7 @@ class StreamsRepository(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
-    private var conflatedBroadcastChannel = ConflatedBroadcastChannel<String>()
+    private var conflatedBroadcastChannel = BroadcastChannel<String>(CONFLATED)
     private val channelsMap = HashMap<Int, Channel<String>>()
 
     init {
@@ -37,7 +37,7 @@ class StreamsRepository(
     }
 
     fun initChannelEmissions() {
-        conflatedBroadcastChannel = ConflatedBroadcastChannel()
+        conflatedBroadcastChannel = BroadcastChannel(BUFFERED)
         channelsMap[RENDEZVOUS] = Channel(RENDEZVOUS)
         channelsMap[UNLIMITED] = Channel(UNLIMITED)
         channelsMap[BUFFERED] = Channel(BUFFERED)
