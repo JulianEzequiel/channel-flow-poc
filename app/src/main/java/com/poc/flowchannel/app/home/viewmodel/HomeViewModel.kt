@@ -9,7 +9,7 @@ import com.poc.flowchannel.app.home.model.ScreenTweet
 import com.poc.flowchannel.app.home.usecase.HomeUseCaseFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @FlowPreview
@@ -38,15 +38,10 @@ class HomeViewModel : ViewModel() {
 
     private fun getUnreadMessages() {
         viewModelScope.launch {
-            while(true) {
-                _unreadMessages.value = getUnreadMessagesUseCase.execute()
-                delay(1200)
+            getUnreadMessagesUseCase.execute().collect {
+                _unreadMessages.value = it
             }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
     }
 
 }
