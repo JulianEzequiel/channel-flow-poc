@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.poc.flowchannel.app.core.model.TweetInteraction
 import com.poc.flowchannel.app.core.usecase.CoreUseCaseFactory
+import com.poc.flowchannel.app.detail.model.ScreenTweetInteraction
 import com.poc.flowchannel.app.detail.usecase.TweetDetailUseCaseFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -23,8 +23,8 @@ class TweetDetailViewModel : ViewModel() {
     private val _unreadMessages = MutableLiveData<Int>()
     val unreadMessages: LiveData<Int> get() = _unreadMessages
 
-    private val _tweetInteractions = MutableLiveData<TweetInteraction>()
-    val tweetInteractions: LiveData<TweetInteraction> get() = _tweetInteractions
+    private val _tweetInteractions = MutableLiveData<ScreenTweetInteraction>()
+    val tweetInteractions: LiveData<ScreenTweetInteraction> get() = _tweetInteractions
 
     init {
         getUnreadMessages()

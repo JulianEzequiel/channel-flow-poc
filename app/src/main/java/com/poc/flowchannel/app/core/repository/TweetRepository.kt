@@ -67,7 +67,7 @@ class TweetRepository(
     }
 
     // One-shot operation
-    suspend fun getTweets(): List<Tweet> = listOf(
+    fun getTweets(): List<Tweet> = listOf(
         Tweet(1, "Julian", "Preparing Reactive Kotlin examples!", 3, 10, 21),
         Tweet(2, "Facu", "Going live in 5420 minutes!", 3, 19, 3),
         Tweet(3, "Eze", "Does flow has flow?", 1, 123, 100),

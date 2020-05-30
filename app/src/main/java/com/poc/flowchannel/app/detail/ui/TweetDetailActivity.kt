@@ -60,9 +60,9 @@ class TweetDetailActivity : AppCompatActivity() {
         })
 
         viewModel.tweetInteractions.observe(this, Observer {
-            repliesText.text = it.replies.toString()
-            retweetsText.text = it.retweets.toString()
-            favsText.text = it.favorites.toString()
+            repliesText.text = it.responsesQuantity.toString()
+            retweetsText.text = it.rtsQuantity.toString()
+            favsText.text = it.favoritesQuantity.toString()
         })
     }
 
