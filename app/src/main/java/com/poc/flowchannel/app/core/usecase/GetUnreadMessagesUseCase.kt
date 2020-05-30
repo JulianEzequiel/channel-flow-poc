@@ -10,6 +10,6 @@ class GetUnreadMessagesUseCase(
     private val tweetRepository: TweetRepository
 ) {
 
-    fun execute() = tweetRepository.getUnreadMessages()
+    suspend fun execute() = tweetRepository.getUnreadMessages()
 
 }

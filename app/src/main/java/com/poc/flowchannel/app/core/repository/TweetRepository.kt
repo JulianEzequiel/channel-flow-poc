@@ -6,7 +6,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.consumeAsFlow
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -54,7 +53,7 @@ class TweetRepository(
 
     // Channel emmiting and retrieving messages.
     @FlowPreview
-    fun getUnreadMessages() = unreadMessagesChannel.consumeAsFlow()
+    suspend fun getUnreadMessages() = unreadMessagesChannel.receive()
 
     private fun startReceivenUnreadMessageAlerts() {
         coroutineScope.launch {

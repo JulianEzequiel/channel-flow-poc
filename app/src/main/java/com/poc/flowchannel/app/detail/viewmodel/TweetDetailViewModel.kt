@@ -9,6 +9,7 @@ import com.poc.flowchannel.app.core.usecase.CoreUseCaseFactory
 import com.poc.flowchannel.app.detail.usecase.TweetDetailUseCaseFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -39,11 +40,15 @@ class TweetDetailViewModel : ViewModel() {
 
     private fun getUnreadMessages() {
         viewModelScope.launch {
-            getUnreadMessagesUseCase.execute()
-                .collect {
-                    _unreadMessages.value = it
-                }
+            while(true) {
+                _unreadMessages.value = getUnreadMessagesUseCase.execute()
+                delay(1200)
+            }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
     }
 
 }
