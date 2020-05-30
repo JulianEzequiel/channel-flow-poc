@@ -4,7 +4,7 @@ import com.poc.flowchannel.app.core.model.Tweet
 import com.poc.flowchannel.app.core.model.TweetInteraction
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
+import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.callbackFlow
 
@@ -15,7 +15,7 @@ class TweetRepository(
 ) {
 
     // Channel not scoped to any screen
-    private val unreadMessagesChannel = BroadcastChannel<Int>(CONFLATED)
+    private val unreadMessagesChannel = BroadcastChannel<Int>(BUFFERED)
 
     init {
         startReceivenUnreadMessageAlerts()
