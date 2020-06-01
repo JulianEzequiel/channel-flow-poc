@@ -22,6 +22,8 @@
 
         <activity android:name="com.poc.flowchannel.examples.ui.ChannelActivity" />
 
+        <activity android:name="com.poc.flowchannel.examples.ui.StateFlowActivity" />
+
         <activity android:name="com.poc.flowchannel.examples.ui.ChannelReceiversActivity" />
 
         <activity android:name="com.poc.flowchannel.examples.ui.BroadcastChannelActivity" />
