@@ -3,9 +3,9 @@ package com.poc.flowchannel.app.core.repository
 import com.poc.flowchannel.app.core.model.Tweet
 import com.poc.flowchannel.app.core.model.TweetInteraction
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 
 @FlowPreview
@@ -15,7 +15,7 @@ class TweetRepository(
 ) {
 
     // Channel not scoped to any screen
-    private val unreadMessagesChannel = BroadcastChannel<Int>(BUFFERED)
+    private val unreadMessagesStream = MutableStateFlow(0)
 
     init {
         startReceivenUnreadMessageAlerts()
@@ -50,18 +50,20 @@ class TweetRepository(
                 send(tweetInteraction)
             }
         }
+
+        awaitClose {
+            //This block is added because we want the Flow to stay open.
+        }
     }
 
     // Channel emmiting and retrieving messages.
     @FlowPreview
-    fun getUnreadMessages() = unreadMessagesChannel.asFlow()
+    fun getUnreadMessages(): StateFlow<Int> = unreadMessagesStream
 
     private fun startReceivenUnreadMessageAlerts() {
         coroutineScope.launch {
-            var unreadMessages = 1
             while (true) {
-                unreadMessagesChannel.send(unreadMessages)
-                unreadMessages++
+                unreadMessagesStream.value++
                 delay(1100)
             }
         }

@@ -31,7 +31,8 @@ class TweetDetailViewModel : ViewModel() {
 
     fun getTweetInteractions(tweetId: Long) {
         viewModelScope.launch {
-            getTweetInteractionUseCase.execute(tweetId).collect {
+            getTweetInteractionUseCase.execute(tweetId)
+                .collect {
                 _tweetInteractions.value = it
             }
         }
