@@ -5,6 +5,7 @@ import com.poc.flowchannel.app.core.model.TweetInteraction
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 
 @FlowPreview
@@ -48,6 +49,10 @@ class TweetRepository(
                 tweetInteraction.favorites++
                 send(tweetInteraction)
             }
+        }
+
+        awaitClose {
+            //This block is added because we want the Flow to stay open.
         }
     }
 
