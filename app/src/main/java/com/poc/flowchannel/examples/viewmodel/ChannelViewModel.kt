@@ -22,6 +22,11 @@ class ChannelViewModel : ViewModel() {
     val bufferedValue = MutableLiveData<String>()
     val otherValue = MutableLiveData<String>()
 
+    override fun onCleared() {
+        super.onCleared()
+        stopChannelEmissions()
+    }
+
     fun initEmissions() {
         initChannelEmissions()
     }
@@ -58,11 +63,6 @@ class ChannelViewModel : ViewModel() {
 
     fun timerValues(): LiveData<String> = conflatedBroadcastChannel.asFlow().asLiveData()
 
-    override fun onCleared() {
-        stopChannelEmissions()
-        super.onCleared()
-    }
-
     private fun initChannelEmissions() {
         conflatedBroadcastChannel = BroadcastChannel(Channel.BUFFERED)
         channelsMap[ListenType.RENDEZVOUS] = Channel(Channel.RENDEZVOUS)
@@ -84,13 +84,9 @@ class ChannelViewModel : ViewModel() {
             var value = 0
 
             while (true) {
-                if (!conflatedBroadcastChannel.isClosedForSend) {
-                    conflatedBroadcastChannel.send(value.toString())
-                    value++
-                    delay(1000)
-                } else {
-                    return@launch
-                }
+                conflatedBroadcastChannel.send(value.toString())
+                value++
+                delay(1000)
             }
         }
     }
@@ -100,22 +96,18 @@ class ChannelViewModel : ViewModel() {
             var value = 0
 
             while (true) {
-                if (!channel.isClosedForSend) {
-                    channel.send(value.toString())
-                    value++
-                    delay(1000)
-                } else {
-                    return@launch
-                }
+                channel.send(value.toString())
+                value++
+                delay(1000)
             }
         }
     }
 
     private fun stopChannelEmissions() {
-        conflatedBroadcastChannel.close()
+        conflatedBroadcastChannel.cancel()
 
         channelsMap.keys.forEach {
-            channelsMap[it]?.close()
+            channelsMap[it]?.cancel()
         }
     }
 
