@@ -3,11 +3,14 @@ package com.poc.flowchannel.examples.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -26,6 +29,12 @@ class BroadcastChannelViewModel : ViewModel() {
         initAsFlowBroadcastChannel()
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        broadcastChannel.cancel()
+        asFlowBroadcastChannel.cancel()
+    }
+
     private fun initAsFlowBroadcastChannel() {
         initChannelEmissions(asFlowBroadcastChannel)
         launchReceiverAsFlow(asFlowBroadcastChannelReceiver1, broadcastChannel)
@@ -42,13 +51,9 @@ class BroadcastChannelViewModel : ViewModel() {
         viewModelScope.launch {
             var value = 0
             while (true) {
-                if (isActive) {
-                    channel.send(value.toString())
-                    value++
-                    delay(1000)
-                } else {
-                    return@launch
-                }
+                channel.send(value.toString())
+                value++
+                delay(1000)
             }
         }
     }
@@ -60,11 +65,7 @@ class BroadcastChannelViewModel : ViewModel() {
         viewModelScope.launch {
             val channelSubscription = channel.openSubscription()
             while (true) {
-                if (isActive) {
-                    receiver.value = channelSubscription.receive()
-                } else {
-                    return@launch
-                }
+                receiver.value = channelSubscription.receive()
             }
         }
     }
