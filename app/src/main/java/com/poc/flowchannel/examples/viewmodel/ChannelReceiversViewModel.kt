@@ -3,11 +3,14 @@ package com.poc.flowchannel.examples.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.channels.Channel.Factory.RENDEZVOUS
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -29,6 +32,13 @@ class ChannelReceiversViewModel : ViewModel() {
         initRendezvous()
         initUnlimited()
         initConflated()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        conflatedChannel.cancel()
+        unlimitedChannel.cancel()
+        rendezvousChannel.cancel()
     }
 
     private fun initRendezvous() {
@@ -53,13 +63,9 @@ class ChannelReceiversViewModel : ViewModel() {
         viewModelScope.launch {
             var value = 0
             while (true) {
-                if (isActive) {
-                    channel.send(value.toString())
-                    value++
-                    delay(1000)
-                } else {
-                    return@launch
-                }
+                channel.send(value.toString())
+                value++
+                delay(1000)
             }
         }
     }
@@ -67,11 +73,7 @@ class ChannelReceiversViewModel : ViewModel() {
     private fun launchReceiver(receiver: MutableLiveData<String>, channel: Channel<String>) {
         viewModelScope.launch {
             while (true) {
-                if (isActive) {
-                    receiver.value = channel.receive()
-                } else {
-                    return@launch
-                }
+                receiver.value = channel.receive()
             }
         }
     }
