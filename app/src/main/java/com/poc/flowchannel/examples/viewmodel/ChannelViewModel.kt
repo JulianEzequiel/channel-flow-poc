@@ -1,22 +1,20 @@
 package com.poc.flowchannel.examples.viewmodel
 
 import androidx.lifecycle.*
-import com.poc.flowchannel.examples.usecase.channel.ListenChannelUseCase
-import com.poc.flowchannel.examples.usecase.factory.UseCaseFactory
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.asFlow
+import kotlin.collections.set
+
+private const val FIXED_BUFFER_SIZE = 2
 
 @FlowPreview
 @ExperimentalCoroutinesApi
 class ChannelViewModel : ViewModel() {
 
-    private val initChannelsUseCase = UseCaseFactory.initChannelsUseCase()
-    private val listenChannelUseCase = UseCaseFactory.listenConflatedChannelUseCase()
-    private val closeChannelsUseCase = UseCaseFactory.closeChannelsUseCase()
-
-    private val getBroadcastChannelEmissionUseCase =
-        UseCaseFactory.getBroadcastChannelEmissionUseCase()
+    private var conflatedBroadcastChannel = BroadcastChannel<String>(Channel.CONFLATED)
+    private val channelsMap = HashMap<ListenType, Channel<String>>()
 
     val rendezvousValue = MutableLiveData<String>()
     val conflatedValue = MutableLiveData<String>()
@@ -25,48 +23,107 @@ class ChannelViewModel : ViewModel() {
     val otherValue = MutableLiveData<String>()
 
     fun initEmissions() {
-        initChannelsUseCase.execute()
+        initChannelEmissions()
     }
 
     fun receiveRendezvous() {
         viewModelScope.launch {
-            rendezvousValue.value =
-                listenChannelUseCase.execute(ListenChannelUseCase.ListenType.RENDEZVOUS)
+            rendezvousValue.value = channelsMap[ListenType.RENDEZVOUS]?.receive()
         }
     }
 
     fun receiveConflated() {
         viewModelScope.launch {
-            conflatedValue.value =
-                listenChannelUseCase.execute(ListenChannelUseCase.ListenType.CONFLATED)
+            conflatedValue.value = channelsMap[ListenType.CONFLATED]?.receive()
         }
     }
 
     fun receiveUnlimited() {
         viewModelScope.launch {
-            unlimitedValue.value =
-                listenChannelUseCase.execute(ListenChannelUseCase.ListenType.UNLIMITED)
+            unlimitedValue.value = channelsMap[ListenType.UNLIMITED]?.receive()
         }
     }
 
     fun receiveBuffered() {
         viewModelScope.launch {
-            bufferedValue.value =
-                listenChannelUseCase.execute(ListenChannelUseCase.ListenType.BUFFERED)
+            bufferedValue.value = channelsMap[ListenType.BUFFERED]?.receive()
         }
     }
 
     fun receiveOther() {
         viewModelScope.launch {
-            otherValue.value = listenChannelUseCase.execute(ListenChannelUseCase.ListenType.OTHER)
+            otherValue.value = channelsMap[ListenType.OTHER]?.receive()
         }
     }
 
-    fun timerValues(): LiveData<String> = getBroadcastChannelEmissionUseCase.execute().asLiveData()
+    fun timerValues(): LiveData<String> = conflatedBroadcastChannel.asFlow().asLiveData()
 
     override fun onCleared() {
+        stopChannelEmissions()
         super.onCleared()
-        closeChannelsUseCase.execute()
     }
 
+    private fun initChannelEmissions() {
+        conflatedBroadcastChannel = BroadcastChannel(Channel.BUFFERED)
+        channelsMap[ListenType.RENDEZVOUS] = Channel(Channel.RENDEZVOUS)
+        channelsMap[ListenType.UNLIMITED] = Channel(Channel.UNLIMITED)
+        channelsMap[ListenType.BUFFERED] = Channel(Channel.BUFFERED)
+        channelsMap[ListenType.OTHER] = Channel(FIXED_BUFFER_SIZE)
+        channelsMap[ListenType.CONFLATED] = Channel(Channel.CONFLATED)
+
+        initConflatedBroadcastOffering()
+        sendValues(channelsMap[ListenType.RENDEZVOUS]!!)
+        sendValues(channelsMap[ListenType.UNLIMITED]!!)
+        sendValues(channelsMap[ListenType.BUFFERED]!!)
+        sendValues(channelsMap[ListenType.OTHER]!!)
+        sendValues(channelsMap[ListenType.CONFLATED]!!)
+    }
+
+    private fun initConflatedBroadcastOffering() {
+        viewModelScope.launch(Dispatchers.IO) {
+            var value = 0
+
+            while (true) {
+                if (!conflatedBroadcastChannel.isClosedForSend) {
+                    conflatedBroadcastChannel.send(value.toString())
+                    value++
+                    delay(1000)
+                } else {
+                    return@launch
+                }
+            }
+        }
+    }
+
+    private fun sendValues(channel: Channel<String>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            var value = 0
+
+            while (true) {
+                if (!channel.isClosedForSend) {
+                    channel.send(value.toString())
+                    value++
+                    delay(1000)
+                } else {
+                    return@launch
+                }
+            }
+        }
+    }
+
+    private fun stopChannelEmissions() {
+        conflatedBroadcastChannel.close()
+
+        channelsMap.keys.forEach {
+            channelsMap[it]?.close()
+        }
+    }
+
+    private enum class ListenType {
+        RENDEZVOUS,
+        UNLIMITED,
+        CONFLATED,
+        BUFFERED,
+        OTHER
+    }
 }
