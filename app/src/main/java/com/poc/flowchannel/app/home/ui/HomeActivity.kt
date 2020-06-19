@@ -7,6 +7,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.poc.flowchannel.R
+import com.poc.flowchannel.app.core.repository.RepositoryFactory
+import com.poc.flowchannel.app.core.usecase.GetTweetInteractionUseCase
 import com.poc.flowchannel.app.detail.ui.TweetDetailActivity
 import com.poc.flowchannel.app.home.model.ScreenTweet
 import com.poc.flowchannel.app.home.ui.adapter.TweetListAdapter
@@ -24,6 +26,7 @@ class HomeActivity : AppCompatActivity(), TweetListCallback {
 
     private val tweetsAdapter = TweetListAdapter(
         tweetListCallback = this,
+        getTweetInteractionUseCase = GetTweetInteractionUseCase(RepositoryFactory.tweetRepository()),
         lifecycleCoroutineScope = lifecycleScope
     )
 

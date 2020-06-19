@@ -29,26 +29,21 @@ class TweetRepository(
     @FlowPreview
     fun getUnreadMessages(): StateFlow<Int> = unreadMessagesStream
 
-    private fun startReceivenUnreadMessageAlerts() {
-        coroutineScope.launch {
-            while (true) {
-                unreadMessagesStream.value++
-                delay(1100)
-            }
-        }
-    }
-
     fun getTweets(): List<TweetWithInteraction> {
         return tweetList
             .map {
-                TweetWithInteraction(it, getInteractionFlow(it.replies, it.retweets, it.favs))
+                TweetWithInteraction(it, createInteractionFlow(it))
             }
     }
+
+    fun getTweetInteraction(tweetId: Long) = tweetList
+        .filter { it.id == tweetId }
+        .map { createInteractionFlow(it) }.first()
 
     fun getTweet(tweetId: Long) = tweetList
         .filter { it.id == tweetId }
         .map {
-            TweetWithInteraction(it, getInteractionFlow(it.replies, it.retweets, it.favs))
+            TweetWithInteraction(it, getTweetInteraction(it.id))
         }.first()
 
     private fun createTweets(): List<Tweet> = listOf(
@@ -96,10 +91,9 @@ class TweetRepository(
         )
     )
 
-    private fun getInteractionFlow(responses: Int, retweets: Int, favorites: Int) =
+    private fun createInteractionFlow(tweet: Tweet) =
         callbackFlow {
-            val tweetInteraction = TweetInteraction(responses, retweets, favorites)
-            send(tweetInteraction)
+            send(TweetInteraction(tweet.replies, tweet.retweets, tweet.favs))
 
             val delayForReply = Random.nextLong(1000, 2000)
             val delayForRetweet = Random.nextLong(1000, 2000)
@@ -108,24 +102,24 @@ class TweetRepository(
             launch {
                 while (true) {
                     delay(delayForReply)
-                    tweetInteraction.replies++
-                    send(tweetInteraction)
+                    tweet.replies++
+                    send(TweetInteraction(tweet.replies, tweet.retweets, tweet.favs))
                 }
             }
 
             launch {
                 while (true) {
                     delay(delayForRetweet)
-                    tweetInteraction.retweets++
-                    send(tweetInteraction)
+                    tweet.retweets++
+                    send(TweetInteraction(tweet.replies, tweet.retweets, tweet.favs))
                 }
             }
 
             launch {
                 while (true) {
                     delay(delayForFavorite)
-                    tweetInteraction.favorites++
-                    send(tweetInteraction)
+                    tweet.favs++
+                    send(TweetInteraction(tweet.replies, tweet.retweets, tweet.favs))
                 }
             }
 
@@ -134,4 +128,12 @@ class TweetRepository(
             }
         }
 
+    private fun startReceivenUnreadMessageAlerts() {
+        coroutineScope.launch {
+            while (true) {
+                unreadMessagesStream.value++
+                delay(1100)
+            }
+        }
+    }
 }

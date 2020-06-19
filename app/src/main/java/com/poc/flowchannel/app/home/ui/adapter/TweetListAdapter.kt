@@ -6,15 +6,19 @@ import android.view.ViewGroup
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.poc.flowchannel.R
+import com.poc.flowchannel.app.core.usecase.GetTweetInteractionUseCase
 import com.poc.flowchannel.app.detail.model.toScreenTweetInteraction
 import com.poc.flowchannel.app.home.model.ScreenTweet
 import kotlinx.android.synthetic.main.tweet_item_layout.view.*
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class TweetListAdapter(
     var items: List<ScreenTweet>? = listOf(),
+    private val getTweetInteractionUseCase: GetTweetInteractionUseCase,
     private val tweetListCallback: TweetListCallback,
     private val lifecycleCoroutineScope: LifecycleCoroutineScope
 ) : RecyclerView.Adapter<TweetListViewHolder>() {
@@ -29,30 +33,39 @@ class TweetListAdapter(
             tweetListCallback.onTweetSelected(view.getTag(R.id.list_tweet) as ScreenTweet)
         }
 
-        return TweetListViewHolder(view)
+        return TweetListViewHolder(lifecycleCoroutineScope, getTweetInteractionUseCase, view)
     }
 
     override fun getItemCount(): Int = items?.size ?: 0
 
     override fun onBindViewHolder(holder: TweetListViewHolder, position: Int) =
-        holder.bind(items?.get(position)!!, lifecycleCoroutineScope)
+        holder.bind(items?.get(position)!!)
 }
 
-class TweetListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class TweetListViewHolder(
+    private val coroutineScope: CoroutineScope,
+    private val getTweetInteractionUseCase: GetTweetInteractionUseCase,
+    view: View
+) : RecyclerView.ViewHolder(view) {
 
-    fun bind(screenTweet: ScreenTweet, lifecycleCoroutineScope: LifecycleCoroutineScope) {
+    private var tweetInteractionJob: Job? = null
+
+    fun bind(screenTweet: ScreenTweet) {
+        tweetInteractionJob?.cancel()
+
         itemView.firstNameLetterText.text = screenTweet.username.first().toUpperCase().toString()
         itemView.usernameText.text = screenTweet.username
         itemView.tweetText.text = screenTweet.tweet
 
-        screenTweet.interaction
-            .map { it.toScreenTweetInteraction() }
-            .onEach {
-                itemView.repliesText.text = it.responsesQuantity.toString()
-                itemView.retweetsText.text = it.rtsQuantity.toString()
-                itemView.favsText.text = it.favoritesQuantity.toString()
-            }
-            .launchIn(lifecycleCoroutineScope)
+        tweetInteractionJob = coroutineScope.launch {
+            getTweetInteractionUseCase.execute(screenTweet.id)
+                .map { it.toScreenTweetInteraction() }
+                .collect {
+                    itemView.repliesText.text = it.responsesQuantity.toString()
+                    itemView.retweetsText.text = it.rtsQuantity.toString()
+                    itemView.favsText.text = it.favoritesQuantity.toString()
+                }
+        }
 
         itemView.setTag(R.id.list_tweet, screenTweet)
     }
