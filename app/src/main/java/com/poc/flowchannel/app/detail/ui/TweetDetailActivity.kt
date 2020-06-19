@@ -22,11 +22,11 @@ class TweetDetailActivity : AppCompatActivity() {
 
     companion object {
 
-        private const val SCREEN_TWEET_KEY = "SCREEN_TWEET_KEY"
+        private const val SCREEN_TWEET_ID_KEY = "SCREEN_TWEET_ID_KEY"
 
         fun get(context: Context, screenTweet: ScreenTweet): Intent {
             val bundle = Bundle()
-            bundle.putParcelable(SCREEN_TWEET_KEY, screenTweet)
+            bundle.putLong(SCREEN_TWEET_ID_KEY, screenTweet.id)
             val intent = Intent(context, TweetDetailActivity::class.java)
             intent.putExtras(bundle)
             return intent
@@ -38,25 +38,24 @@ class TweetDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tweet_detail)
 
-        fillData()
         bindObservers()
     }
 
-    private fun fillData() {
-        val screenTweet = intent.extras?.get(SCREEN_TWEET_KEY) as ScreenTweet
-        firstNameLetterText.text = screenTweet.username.first().toUpperCase().toString()
-        usernameText.text = screenTweet.username
-        tweetText.text = screenTweet.tweet
-        repliesText.text = screenTweet.responsesQuantity.toString()
-        retweetsText.text = screenTweet.rtsQuantity.toString()
-        favsText.text = screenTweet.favoritesQuantity.toString()
-
-        viewModel.getTweetInteractions(screenTweet.id)
+    override fun onResume() {
+        super.onResume()
+        val screenTweetId = intent.extras?.getLong(SCREEN_TWEET_ID_KEY)!!
+        viewModel.getTweet(screenTweetId)
     }
 
     private fun bindObservers() {
         viewModel.unreadMessages.observe(this, Observer {
             unreadMessagesText.text = it.toString()
+        })
+
+        viewModel.tweet.observe(this, Observer {
+            firstNameLetterText.text = it.username.first().toUpperCase().toString()
+            usernameText.text = it.username
+            tweetText.text = it.tweet
         })
 
         viewModel.tweetInteractions.observe(this, Observer {

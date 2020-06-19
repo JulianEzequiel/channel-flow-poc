@@ -1,17 +1,16 @@
 package com.poc.flowchannel.app.home.model
 
-import android.os.Parcelable
-import com.poc.flowchannel.app.core.model.Tweet
-import kotlinx.android.parcel.Parcelize
+import com.poc.flowchannel.app.core.model.TweetInteraction
+import com.poc.flowchannel.app.core.model.TweetWithInteraction
+import kotlinx.coroutines.flow.Flow
 
-@Parcelize
 data class ScreenTweet(
     val id: Long,
     val username: String,
     val tweet: String,
-    val responsesQuantity: Int,
-    val rtsQuantity: Int,
-    val favoritesQuantity: Int
-) : Parcelable
+    val interaction: Flow<TweetInteraction>
+)
 
-fun Tweet.toScreenTweet() = ScreenTweet(id, user, tweet, responses, retweets, favorites)
+fun TweetWithInteraction.toScreenTweet() = ScreenTweet(
+    tweet.id, tweet.user, tweet.tweet, interaction
+)

@@ -8,6 +8,6 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalCoroutinesApi
 object TweetDetailUseCaseFactory {
 
-    fun getTweetInteractionsUseCase() = GetTweetInteractionsUseCase(tweetRepository())
+    fun getTweetInteractionsUseCase() = GetTweetUseCase(tweetRepository())
 
 }

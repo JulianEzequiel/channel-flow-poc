@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.poc.flowchannel.R
 import com.poc.flowchannel.app.detail.ui.TweetDetailActivity
@@ -21,7 +22,10 @@ class HomeActivity : AppCompatActivity(), TweetListCallback {
 
     private val homeViewModel: HomeViewModel by viewModels()
 
-    private val tweetsAdapter = TweetListAdapter(tweetListCallback = this)
+    private val tweetsAdapter = TweetListAdapter(
+        tweetListCallback = this,
+        lifecycleCoroutineScope = lifecycleScope
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
